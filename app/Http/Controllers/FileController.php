@@ -76,6 +76,35 @@ class FileController extends Controller
         }
     }
 
+    public function fileDelete(Request $request): array
+    {
+        if(File::query()->where('id', $request->id)->exists()){
+            if (FilesUser::query()->where('file_id', $request->id)->where('user_id', $request->user()->id)->where('permission', 'Author')->exists()) {
+                $file = File::query()->where('id', $request->id)->get('path');
+                Storage::delete($file);
+                return [
+                    'success' => true,
+                    'code'=> 200,
+                    'message' => 'File deleted'
+                ];
+            } else {
+                return [
+                    'success' => false,
+                    'code'=> 403,
+                    'message' => 'Forbidden for you'
+                ];
+            }
+
+        } else {
+            return [
+                'success' => false,
+                'code'=> 404,
+                'message' => 'File not found'
+            ];
+        }
+
+    }
+
     public function getAllFiles(Request $request): array
     {
         //dd($request->user());
